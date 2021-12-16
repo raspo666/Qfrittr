@@ -15,6 +15,5 @@ build with qcreator, or:
 $>qmake
 $>make
 
-```
 
     -rasp
