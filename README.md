@@ -11,8 +11,10 @@ Updates every 3 secs, vertical values are scaled as tradssic comes in....
 
 build with qcreator, or:
 ```
+
 $>qmake
 $>make
+
 ```
 
     -rasp
