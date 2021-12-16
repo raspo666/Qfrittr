@@ -28,11 +28,10 @@
 
 using namespace std;
 
-
 extern QString Boxip,Boxname;
 
 int maxup,maxdown,curup,curdown;
-
+int scalemax;  //average downloadrate fort y scale
 
 void
 MainWindow::doconfig()
@@ -78,8 +77,17 @@ settings->setValue("email","info@spitzner.org");
 maxup = settings->value("maxup").toInt();
 maxdown =settings->value("maxdown").toInt();
 Boxname= settings->value("Boxname").toString();
-
+scalemax= settings->value("scalemax").toInt();
 Boxip =settings->value("Boxip").toString();
+logfilename = settings->value("logfilename").toString().toStdString();
+wantlog=settings->value("wantlog").toBool();
+scalemax=settings->value("scalemax").toInt();
+if (scalemax ==0)
+{
+    scalemax=1000;
+}
+qDebug() << "scalemax" << scalemax ;
+
 if(Boxip.isEmpty())
 {
     doconfig();
@@ -93,24 +101,26 @@ qDebug() << settings->fileName();
 
 
 
-mPlot = new QCustomPlot(this);
+  mPlot = new QCustomPlot(this);
   setCentralWidget(mPlot);
   connect(ui->actionconfig,SIGNAL(triggered()),this,SLOT(doconfig()));
   // configure plot to have two right axes:
   mPlot->yAxis->setTickLabels(false);
-  connect(mPlot->yAxis2, SIGNAL(rangeChanged(QCPRange)), mPlot->yAxis, SLOT(setRange(QCPRange))); // left axis only mirrors inner right axis
+  connect(mPlot->yAxis2, SIGNAL(rangeChanged(QCPRange)), mPlot->yAxis, SLOT(setRange( 0.0,200.0)));//QCPRange))); // left axis only mirrors inner right axis
   mPlot->yAxis2->setVisible(true);
   mPlot->axisRect()->addAxis(QCPAxis::atRight);
   mPlot->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(30); // add some padding to have space for tags
   mPlot->axisRect()->axis(QCPAxis::atRight, 1)->setPadding(30); // add some padding to have space for tags
-  
+  mPlot->axisRect()->axis(QCPAxis::atRight,0)->setRange(0.0,scalemax);
+  mPlot->axisRect()->axis(QCPAxis::atRight,1)->setRange(0.0,scalemax);
+
   // create graphs:
   mGraph1 = mPlot->addGraph(mPlot->xAxis, mPlot->axisRect()->axis(QCPAxis::atRight, 0));
   mGraph2 = mPlot->addGraph(mPlot->xAxis, mPlot->axisRect()->axis(QCPAxis::atRight, 1));
-  mGraph1->setPen(QPen(QColor(250, 120, 0)));
-  mGraph2->setPen(QPen(QColor(0, 180, 60)));
-  mbrush1.setColor(QColor(250, 120, 0));
-  mbrush2.setColor(QColor(0, 180, 60));
+  mGraph1->setPen(QPen(QColor(10, 190, 60)));
+  mGraph2->setPen(QPen(QColor(250, 30, 0)));
+  mbrush1.setColor(QColor(0, 180, 60));
+  mbrush2.setColor(QColor(250, 30, 0));
 
   mbrush1.setStyle((Qt::BrushStyle)5);
   mbrush2.setStyle((Qt::BrushStyle)5);
@@ -127,6 +137,21 @@ mPlot = new QCustomPlot(this);
   connect(&mDataTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
   //mDataTimer.setInterval( 1000 );
   mDataTimer.start(3000);
+  if(wantlog == true)
+    {
+      if(logfile ==NULL)
+      {
+          if((logfile = fopen(logfilename.data(),"a+")) == NULL)
+          {
+          QMessageBox msgBox;
+          string msg = "cannot open ";
+          msg.append(logfilename);
+          msgBox.setText(msg.data());
+          qDebug("logfilename.");
+          msgBox.exec();
+          }
+      }
+  }
 }
 
 MainWindow::~MainWindow()
@@ -142,15 +167,31 @@ void MainWindow::timerSlot()
 
     }
   qDebug() << "curup:" << curup << "curdown:" << curdown ;
+  if (wantlog)
+    {
+      this->logline(curup,curdown);
+  }
+if (curdown >=scalemax)
+{
+    scalemax =curdown;
+}
+// "rescale"
+  mPlot->axisRect()->axis(QCPAxis::atRight,0)->setRange(0.0,scalemax/1000);
+  mPlot->axisRect()->axis(QCPAxis::atRight,1)->setRange(0.0,scalemax/1000);
+
 
   // calculate and add a new data point to each graph:
-  mGraph1->addData(mGraph1->dataCount(), qSin(mGraph1->dataCount()/50.0)+qSin(mGraph1->dataCount()/50.0/0.3843)*0.25);
-  mGraph2->addData(mGraph2->dataCount(), qCos(mGraph2->dataCount()/50.0)+qSin(mGraph2->dataCount()/50.0/0.4364)*0.15);
+
+  mGraph1->addData(mGraph1->dataCount(),curdown/1000);
+//  mGraph1->addData(mGraph1->dataCount(), qSin(mGraph1->dataCount()/50.0)+qSin(mGraph1->dataCount()/50.0/0.3843)*0.25);
+  mGraph2->addData(mGraph2->dataCount(),curup/1000);
+
+  //  mGraph2->addData(mGraph2->dataCount(), qCos(mGraph2->dataCount()/50.0)+qSin(mGraph2->dataCount()/50.0/0.4364)*0.15);
 
   // make key axis range scroll with the data:
   mPlot->xAxis->rescale();
-  mGraph1->rescaleValueAxis(false, true);
-  mGraph2->rescaleValueAxis(false, true);
+  mGraph1->rescaleValueAxis(true, false);
+  //mGraph2->rescaleValueAxis(true, false);
   mPlot->xAxis->setRange(mPlot->xAxis->range().upper, 100, Qt::AlignRight);
   
   // update the vertical axis tag positions and texts to match the rightmost data point of the graphs:
@@ -162,4 +203,28 @@ void MainWindow::timerSlot()
   mTag2->setText(QString::number(graph2Value, 'f', 2));
   
   mPlot->replot();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    settings->setValue("scalemax",scalemax);
+    settings->setValue(Boxip,Boxip);
+    settings->setValue(Boxname,Boxname);
+    settings->setValue("maxup",maxup);
+    settings->setValue("maxdown",maxdown);
+    settings->setValue("logfilename",logfilename.data());
+    settings->setValue("wantlog",wantlog);
+    //settings->setValue("exit","yes");
+    settings->sync();
+
+}
+
+
+
+
+void
+MainWindow::logline(int up, int down)
+{
+    fprintf(logfile,"%d,%d\n",up,down);
+    fflush(logfile);
 }

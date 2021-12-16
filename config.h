@@ -24,6 +24,8 @@ private slots:
 
     void on_buttonsave_clicked();
 
+    void on_logcheck_toggled(bool checked);
+
 private:
     Ui::Config *ui;
 };

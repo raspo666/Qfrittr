@@ -2,8 +2,12 @@
 
 QString Boxip, Boxname;
 bool configsaved=false;
+string logfilename;
+FILE *logfile;
+bool wantlog;
 extern int maxup, maxdown;
 extern QSettings *settings;
+
 Config::Config(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Config)
@@ -41,6 +45,12 @@ Config::Config(QWidget *parent) :
         maxdownstr.number(maxdown);
         ui->maxdownedit->setText(maxdownstr);
     }
+    if(wantlog == true)
+    {
+        ui->logcheck->setChecked(true);
+        ui->logfilename->setText(logfilename.data());
+    }
+
 }
 
 void Config::accept()
@@ -60,30 +70,33 @@ void Config::accept()
              if (reply == QMessageBox::Yes)
              {
                qDebug() << "Yes was clicked";
+               on_buttonsave_clicked();
+               QMessageBox msgBox;
+               msgBox.setText("values saved anyway  :-) ");
+               msgBox.exec();
                this->close();
              }
              else
              {
-               qDebug() << "Yes was *not* clicked";
+             qDebug() << "Yes was *not* clicked";
              }
-        }
+      }
        else
        {
-         this->close();
+           this->close();
        }
-
     }
-
     else
     {
-        QMessageBox msgBox;
-     msgBox.setText("Invalid Ip Address !");
-        qDebug("Unknown or invalid address.");
-    msgBox.exec();
+           qDebug("getboxinfo failed !");
+
+           QMessageBox msgBox;
+           msgBox.setText("getboxinfo failed !");
+           msgBox.exec();
+         this->close();
     }
 
 }
-
 
 
 Config::~Config()
@@ -118,6 +131,46 @@ settings->setValue("Boxip", ui->IPedit->text());
 settings->setValue("Boxname",Boxname);
 settings->setValue("maxup",ui->Maxupedit->text().toInt());
 settings->setValue("maxdown",ui->maxdownedit->text().toInt());
+if(ui->logcheck->checkState() == Qt::Checked)
+{
+    logfilename = ui->logfilename->text().toStdString();
+    if(logfile != NULL)
+    {
+        fclose(logfile);
+    }
+    if((logfile = fopen(logfilename.data(),"a+")) == NULL)
+    {
+    QMessageBox msgBox;
+    string msg = "cannot open ";
+    msg.append(logfilename);
+    msgBox.setText(msg.data());
+    qDebug("logfilename.");
+    msgBox.exec();
+    }
+    else
+    {
+        wantlog = true;
+        settings->setValue("wantlog",wantlog);
+        settings->setValue("logfilename",logfilename.data());
+    }
+
+}
+else
+{
+    wantlog = false;
+    settings->setValue("wantlog",wantlog);
+    settings->remove("logfilename");
+
+}
+
+
 configsaved = true;
+}
+
+
+void Config::on_logcheck_toggled(bool checked)
+{
+    return;
+
 }
 

@@ -32,6 +32,9 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include "socket.h"
+extern string logfilename;
+extern bool wantlog;
+extern FILE *logfile;
 
 
 

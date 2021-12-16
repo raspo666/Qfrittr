@@ -149,6 +149,42 @@
     <string>Test</string>
    </property>
   </widget>
+  <widget class="QLineEdit" name="logfilename">
+   <property name="geometry">
+    <rect>
+     <x>147</x>
+     <y>120</y>
+     <width>141</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>75</x>
+     <y>121</y>
+     <width>74</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Logfilename</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="logcheck">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>121</y>
+     <width>85</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Logfile</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

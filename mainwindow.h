@@ -49,6 +49,11 @@ private slots:
   void timerSlot();
   void doconfig();
 private:
+  void logline(int up, int down);
+protected:
+     void closeEvent(QCloseEvent *event);
+
+private:
   Ui::MainWindow *ui;
   QCustomPlot *mPlot;
   QPointer<QCPGraph> mGraph1;
