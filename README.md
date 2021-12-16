@@ -9,5 +9,9 @@ Anyway, Qfrittr [(Q)(fritzbox)(traffic)] tries to figure out where your box live
 Then monitoring starts.
 Updates every 3 secs, vertical values are scaled as tradssic comes in....
 
+build with qcreator, or:
+$>qmake
+$>make
+
 
     -rasp
