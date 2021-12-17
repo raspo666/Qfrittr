@@ -177,13 +177,13 @@ void MainWindow::timerSlot()
  suffup = suffdown = suffk;
  if(dup >1000.0)
  {
-     dup = dup/1000.0;
+     dup = dup/100.0;
      suffup = suffm;
  }
  ddown = curdown/(double)1000;
  if(ddown >1000.0)
  {
-     ddown = ddown/1000;
+     ddown = ddown/100.0;
      suffdown = suffm;
  }
 sprintf(buffer," - up:%.3f %s down:%.3f %s",dup,suffup.data(),ddown,suffdown.data());
