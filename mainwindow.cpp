@@ -29,6 +29,8 @@
 using namespace std;
 
 extern QString Boxip,Boxname;
+QString dyntitle;
+QString newtitle("Qfritter - ");
 
 int maxup,maxdown,curup,curdown;
 int scalemax;  //average downloadrate fort y scale
@@ -58,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
   mTag2(0)
 {
   ui->setupUi(this);
-  
+  this->setFixedWidth(600);
   const char *homedir;
 
   if ((homedir = getenv("HOME")) == NULL) {
@@ -81,7 +83,6 @@ scalemax= settings->value("scalemax").toInt();
 Boxip =settings->value("Boxip").toString();
 logfilename = settings->value("logfilename").toString().toStdString();
 wantlog=settings->value("wantlog").toBool();
-scalemax=settings->value("scalemax").toInt();
 if (scalemax ==0)
 {
     scalemax=1000;
@@ -92,7 +93,6 @@ if(Boxip.isEmpty())
 {
     doconfig();
 }
-QString newtitle("Qfritter - ");
 newtitle.append(Boxname);
 this->setWindowTitle(newtitle);
 qDebug() << Boxip;
@@ -106,14 +106,13 @@ qDebug() << settings->fileName();
   connect(ui->actionconfig,SIGNAL(triggered()),this,SLOT(doconfig()));
   // configure plot to have two right axes:
   mPlot->yAxis->setTickLabels(false);
-  connect(mPlot->yAxis2, SIGNAL(rangeChanged(QCPRange)), mPlot->yAxis, SLOT(setRange( 0.0,200.0)));//QCPRange))); // left axis only mirrors inner right axis
+  //connect(mPlot->yAxis2, SIGNAL(rangeChanged(QCPRange)), mPlot->yAxis, SLOT(setRange( 0.0,200.0)));//QCPRange))); // left axis only mirrors inner right axis
   mPlot->yAxis2->setVisible(true);
   mPlot->axisRect()->addAxis(QCPAxis::atRight);
   mPlot->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(30); // add some padding to have space for tags
   mPlot->axisRect()->axis(QCPAxis::atRight, 1)->setPadding(30); // add some padding to have space for tags
-  mPlot->axisRect()->axis(QCPAxis::atRight,0)->setRange(0.0,scalemax);
-  mPlot->axisRect()->axis(QCPAxis::atRight,1)->setRange(0.0,scalemax);
-
+  mPlot->axisRect()->axis(QCPAxis::atRight,0)->setRange(0.0,scalemax/1000);
+  mPlot->axisRect()->axis(QCPAxis::atRight,1)->setRange(0.0,scalemax/1000);
   // create graphs:
   mGraph1 = mPlot->addGraph(mPlot->xAxis, mPlot->axisRect()->axis(QCPAxis::atRight, 0));
   mGraph2 = mPlot->addGraph(mPlot->xAxis, mPlot->axisRect()->axis(QCPAxis::atRight, 1));
@@ -135,7 +134,6 @@ qDebug() << settings->fileName();
   mTag2->setPen(mGraph2->pen());
 
   connect(&mDataTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
-  //mDataTimer.setInterval( 1000 );
   mDataTimer.start(3000);
   if(wantlog == true)
     {
@@ -161,16 +159,38 @@ MainWindow::~MainWindow()
 
 void MainWindow::timerSlot()
 {
+    char buffer[256];
+    string suffup,suffdown,suffk="kbps",suffm="mbps";
+    double dup,ddown;
+
     if(getupdown())
     {
         qDebug() << "getupdownfailed" ;
 
     }
-  qDebug() << "curup:" << curup << "curdown:" << curdown ;
+  //qDebug() << "curup:" << curup << "curdown:" << curdown ;
   if (wantlog)
     {
       this->logline(curup,curdown);
-  }
+    }
+ dup = curup/(double)1000;
+ suffup = suffdown = suffk;
+ if(dup >1000.0)
+ {
+     dup = dup/1000.0;
+     suffup = suffm;
+ }
+ ddown = curdown/(double)1000;
+ if(ddown >1000.0)
+ {
+     ddown = ddown/1000;
+     suffdown = suffm;
+ }
+sprintf(buffer," - up:%.3f %s down:%.3f %s",dup,suffup.data(),ddown,suffdown.data());
+qDebug() << buffer;
+dyntitle = newtitle;
+dyntitle.append(buffer);
+this->setWindowTitle(dyntitle);
 if (curdown >=scalemax)
 {
     scalemax =curdown;
@@ -182,9 +202,10 @@ if (curdown >=scalemax)
 
   // calculate and add a new data point to each graph:
 
-  mGraph1->addData(mGraph1->dataCount(),curdown/1000);
+  mGraph1->addData(mGraph1->dataCount(),curdown/(double)1000);
+  mGraph1->setName("kbps");
 //  mGraph1->addData(mGraph1->dataCount(), qSin(mGraph1->dataCount()/50.0)+qSin(mGraph1->dataCount()/50.0/0.3843)*0.25);
-  mGraph2->addData(mGraph2->dataCount(),curup/1000);
+  mGraph2->addData(mGraph2->dataCount(),curup/(double)1000);
 
   //  mGraph2->addData(mGraph2->dataCount(), qCos(mGraph2->dataCount()/50.0)+qSin(mGraph2->dataCount()/50.0/0.4364)*0.15);
 
@@ -192,7 +213,7 @@ if (curdown >=scalemax)
   mPlot->xAxis->rescale();
   mGraph1->rescaleValueAxis(true, false);
   //mGraph2->rescaleValueAxis(true, false);
-  mPlot->xAxis->setRange(mPlot->xAxis->range().upper, 100, Qt::AlignRight);
+  mPlot->xAxis->setRange(mPlot->xAxis->range().upper, 400, Qt::AlignRight);
   
   // update the vertical axis tag positions and texts to match the rightmost data point of the graphs:
   double graph1Value = mGraph1->dataMainValue(mGraph1->dataCount()-1);

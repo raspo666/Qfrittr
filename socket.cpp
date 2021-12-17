@@ -75,14 +75,25 @@ extern int maxup, maxdown,curup,curdown;
 
       soff1=result->indexOf("<NewByteSendRate>") + strlen("<NewByteSendRate>");
       soff2=result->indexOf("</NewByteSendRate>");
+      if(soff1 == -1 || soff2 == -1)
+      {
+          return 1;
+      }
       len= soff2 -soff1;
+
       memset(buffer,0,255);
       strncpy(buffer,result->data()+soff1,len);
       curup =atol(buffer);
       soff1=result->indexOf("<NewByteReceiveRate>") + strlen("<NewByteReceiveRate>");
       soff2=result->indexOf("</NewByteReceiveRate>");
+      if(soff1 == -1 || soff2 == -1)
+      {
+          return 1;
+      }
+
       memset(buffer,0,255);
       len= soff2 -soff1;
+
       strncpy(buffer,result->data()+soff1,len);
 
       curdown = atoi(buffer);
@@ -94,10 +105,7 @@ extern int maxup, maxdown,curup,curdown;
 
 int getboxinfo()
 {
-//string bod = SOAP
-    //int maxup=0,maxdown=0;
     QTcpSocket *socke;
-    //string box = Boxip.data(); //"10.0.68.254";/* */  /*   "127.0.0.1";   /**/
     header myhead ;
     int soff1 =0 ,soff2 =0 ,len =0;
     QByteArray *result;
@@ -137,27 +145,29 @@ int getboxinfo()
 
     soff1=result->indexOf("<friendlyName>") + strlen("<friendlyName>");
     soff2=result->indexOf("</friendlyName>");
+    if(soff1 == -1 || soff2 == -1)
+    {
+        return 1;
+    }
+
     len= soff2 -soff1;
     strncpy(bname,result->data()+soff1,len);
-    qDebug() << "BOXNAME:" <<bname << endl ;
+    qDebug() << "BOXNAME:" << bname;
     Boxname =bname;
     socke->disconnectFromHost();
     socke->close();
 
     /// get up/down
     socke->connectToHost(Boxip,49000);
-    socke->waitForConnected(3000);
-    /*myhead.host.clear();
-    myhead.host = "Host: ";
-    myhead.host.append((char*) Boxip.data());
-    myhead.host.append(":4900\n");*/
-    //qDebug() << myhead.host.data();
+    if(!socke->waitForConnected(3000))
+    {
+            return 1;
+    }
+
 
     socke->write("POST /igdupnp/control/WANCommonIFC1 HTTP/1.1\n");
     socke->write(myhead.host.data());
-    //qDebug() << myhead.host.data();
     socke->write(myhead.uagent.data());
-    //qDebug() << myhead.uagent.data();
     socke->write(myhead.acc.data());
     socke->write(myhead.conn.data());
     socke->write(myhead.cotype.data());
@@ -177,16 +187,26 @@ int getboxinfo()
 
     readresult(socke,result);
 
-    qDebug() << "A:" << result->length() << "|"  << result->data() << endl;
+    //qDebug() << "A:" << result->length() << "|"  << result->data() << endl;
 
     soff1=result->indexOf("<NewLayer1UpstreamMaxBitRate>") + strlen("<NewLayer1UpstreamMaxBitRate>");
     soff2=result->indexOf("</NewLayer1UpstreamMaxBitRate>");
     len= soff2 -soff1;
+    if(soff1 == -1 || soff2 == -1)
+    {
+        return 1;
+    }
+
     memset(buffer,0,255);
     strncpy(buffer,result->data()+soff1,len);
     maxup =atol(buffer);
     soff1=result->indexOf("<NewLayer1DownstreamMaxBitRate>") + strlen("<NewLayer1DownstreamMaxBitRate>");
     soff2=result->indexOf("</NewLayer1DownstreamMaxBitRate>");
+    if(soff1 == -1 || soff2 == -1)
+    {
+        return 1;
+    }
+
     memset(buffer,0,255);
     len= soff2 -soff1;
     strncpy(buffer,result->data()+soff1,len);

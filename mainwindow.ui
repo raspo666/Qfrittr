@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>684</width>
     <height>300</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>684</width>
+    <height>300</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Qfrittr</string>
@@ -19,7 +25,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>684</width>
      <height>20</height>
     </rect>
    </property>
