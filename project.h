@@ -14,10 +14,18 @@
 #include <string>
 #include <iostream>
 #include <string>
+#ifdef __linux__
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pwd.h>
+#elif _WIN32
+#include <winsock.h>
+#include <iphlpapi.h>
+#else
+
+#endif
+
 #include <cstring>
 #include <QApplication>
 #include "mainwindow.h"
@@ -28,9 +36,17 @@
 #include "getgw.h"
 #include <QSettings>
 #include <QTcpSocket>
+
+#ifdef __linux__
 #include <unistd.h>
+#elif _WIN32
+#include <io.h>
+#else
+
+#endif
+
 #include <sys/types.h>
-#include <pwd.h>
+//#include <pwd.h>
 #include "socket.h"
 extern string logfilename;
 extern bool wantlog;

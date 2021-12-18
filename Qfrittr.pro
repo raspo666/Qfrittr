@@ -12,12 +12,13 @@ TEMPLATE = app
 INCLUDEPATH += ../../
 SOURCES += \
         config.cpp \
-        getgw.cpp \
         main.cpp \
         mainwindow.cpp \
         qcustomplot.cpp \
         socket.cpp \
-        Qfrittr.cpp
+        Qfrittr.cpp \
+        getgw.cpp
+        
 
 HEADERS += \
         config.h \
@@ -26,7 +27,9 @@ HEADERS += \
         qcustomplot.h \
         Qfrittr.h \
         getgw.h \
-        socket.h
+        socket.h \
+        getgw.h
+        
         
 FORMS += \
         config.ui \
