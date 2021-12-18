@@ -6,10 +6,16 @@
 #include <QTextStream>
 #include <QTcpSocket>
 #include <QTcpServer>
+#ifdef __linux__
 #include <netinet/in.h>
+#include <sys/socket.h>
+#elif _WIN32
+#include <WinSock.h>
+#else
+
+#endif
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 
 

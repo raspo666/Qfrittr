@@ -1,4 +1,5 @@
 #include "project.h"
+#include "getgw.h"
 
 QString Boxip, Boxname;
 bool configsaved=false;
@@ -12,19 +13,26 @@ Config::Config(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Config)
 {
+
     string gw;
-    GetDefaultGw(gw);
-    if(Boxip.isEmpty())
-    {
-        if(!gw.empty())
-        {
-            Boxip =gw.data();
-        }
-    }
-    /*     QMessageBox msgBox;
-     msgBox.setText(gw.data());
-     msgBox.exec();*/
+      GetDefaultGw(gw);
+      if(Boxip.isEmpty())
+      {
+          if(!gw.empty())
+          {
+              Boxip =gw.data();
+              qDebug() << "boxipnow:" << Boxip;
+          }
+      }
+      /*     QMessageBox msgBox;
+       msgBox.setText(gw.data());
+       msgBox.exec();*/
+
+
     ui->setupUi(this);
+
+
+
     if(!Boxip.isEmpty())
     {
             ui->IPedit->setText(Boxip);
@@ -35,15 +43,11 @@ Config::Config(QWidget *parent) :
     }
     if(maxup!=0)
     {
-        QString maxupstr;
-        maxupstr.number(maxup);
-        ui->Maxupedit->setText(maxupstr);
+        ui->Maxupedit->setText(QString::number(maxup));
     }
     if(maxdown !=0)
     {
-        QString maxdownstr;
-        maxdownstr.number(maxdown);
-        ui->maxdownedit->setText(maxdownstr);
+        ui->maxdownedit->setText(QString::number(maxdown));
     }
     if(wantlog == true)
     {
@@ -109,6 +113,10 @@ Config::~Config()
 
 void Config::on_button_test_clicked()
 {
+
+   Boxip = ui->IPedit->text();
+
+
 if(getboxinfo())
     {
     QMessageBox msgBox;

@@ -60,7 +60,8 @@ MainWindow::MainWindow(QWidget *parent) :
   mTag2(0)
 {
   ui->setupUi(this);
-  this->setFixedWidth(600);
+#ifdef __linux__
+
   const char *homedir;
 
   if ((homedir = getenv("HOME")) == NULL) {
@@ -68,11 +69,17 @@ MainWindow::MainWindow(QWidget *parent) :
   }
   QString configfile(homedir);
   configfile.append("/.config/Qfrittr.ini");
-
-
-
-
 settings = new QSettings(configfile, QSettings::IniFormat);
+#elif _WIN32
+settings = new QSettings("RCS-S", "Qfrittr");
+#else
+
+#endif
+
+
+
+
+//settings = new QSettings(configfile, QSettings::IniFormat);
 settings->setValue("author", "Ralph Spitzner");
 settings->setValue("web", "Spitzner.org");
 settings->setValue("email","info@spitzner.org");
@@ -83,6 +90,8 @@ scalemax= settings->value("scalemax").toInt();
 Boxip =settings->value("Boxip").toString();
 logfilename = settings->value("logfilename").toString().toStdString();
 wantlog=settings->value("wantlog").toBool();
+qDebug() << maxup <<"---" << maxdown;
+
 if (scalemax ==0)
 {
     scalemax=1000;
