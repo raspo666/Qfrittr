@@ -26,7 +26,7 @@ string soa {"SoapAction:urn:schemas-upnp-org:service:"};
 string clen {"Content-Length: 324 \n"};  //324 len of SOAP
 } header;
 
-int getboxinfo();
+int getboxinfo(QString ip);
 int getupdown();
 
 #define MAXS "WANCommonInterfaceConfig:1#GetCommonLinkProperties"

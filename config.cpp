@@ -1,6 +1,6 @@
 #include "project.h"
 #include "getgw.h"
-
+#include "ipaddress.h"
 QString Boxip, Boxname;
 bool configsaved=false;
 string logfilename;
@@ -13,6 +13,15 @@ Config::Config(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Config)
 {
+/*IPAddress *ipaddress =new IPAddress();
+ipaddress->setFixedHeight(23);
+ipaddress->setFixedWidth(113);
+ipaddress->setGeometry(40,30,113,23);
+ipaddress->topLevelWidget();
+ipaddress->show();
+*/
+
+
 
     string gw;
       GetDefaultGw(gw);
@@ -35,7 +44,8 @@ Config::Config(QWidget *parent) :
 
     if(!Boxip.isEmpty())
     {
-            ui->IPedit->setText(Boxip);
+        ui->ipaddress->setIP(Boxip);
+            //ui->IPedit->setText(Boxip);
     }
     if(!Boxname.isEmpty())
     {
@@ -59,8 +69,7 @@ Config::Config(QWidget *parent) :
 
 void Config::accept()
 {
-
-   QString addr = ui->IPedit->text();
+    QString addr = ui->ipaddress->getIP(); ///ui->IPedit->text();
     QHostAddress address(addr);
     if (QAbstractSocket::IPv4Protocol == address.protocol())
     {
@@ -92,10 +101,10 @@ void Config::accept()
     }
     else
     {
-           qDebug("getboxinfo failed !");
+           qDebug("IPaddress invalid !");
 
            QMessageBox msgBox;
-           msgBox.setText("getboxinfo failed !");
+           msgBox.setText("IPaddress invalid !");
            msgBox.exec();
          this->close();
     }
@@ -114,10 +123,24 @@ Config::~Config()
 void Config::on_button_test_clicked()
 {
 
-   Boxip = ui->IPedit->text();
+      QString addr = ui->ipaddress->getIP();
+       QHostAddress address(addr);
+       if (QAbstractSocket::IPv4Protocol == address.protocol())
+       {
+          qDebug("Valid IPv4 address.");
+       }
+       else
+       {
+              qDebug("ipaddress invalid !");
+
+              QMessageBox msgBox;
+              msgBox.setText("Not a valid IP Address!");
+              msgBox.exec();
+            //this->close();
+       }
 
 
-if(getboxinfo())
+if(getboxinfo(addr))
     {
     QMessageBox msgBox;
     msgBox.setText("getboxinfo failed !");
@@ -125,49 +148,60 @@ if(getboxinfo())
     msgBox.exec();
     return;
     }
-ui->Boxname_label->setText(Boxname);
-ui->Maxupedit->setText(QString::number(maxup));
-ui->maxdownedit->setText(QString::number(maxdown));
+else
+    {
+    Boxip = addr;
+    ui->Boxname_label->setText(Boxname);
+    ui->Maxupedit->setText(QString::number(maxup));
+    ui->maxdownedit->setText(QString::number(maxdown));
+    }
 }
-
 
 
 void Config::on_buttonsave_clicked()
 {
+QString addr;
+addr = ui->ipaddress->getIP();
 
-settings->setValue("Boxip", ui->IPedit->text());
-settings->setValue("Boxname",Boxname);
-settings->setValue("maxup",ui->Maxupedit->text().toInt());
-settings->setValue("maxdown",ui->maxdownedit->text().toInt());
-if(ui->logcheck->checkState() == Qt::Checked)
-{
-    logfilename = ui->logfilename->text().toStdString();
-    if(logfile != NULL)
+if(getboxinfo(addr))
     {
-        fclose(logfile);
-    }
-    if((logfile = fopen(logfilename.data(),"a+")) == NULL)
-    {
+    qDebug("no valid response from Box !");
+
     QMessageBox msgBox;
-    string msg = "cannot open ";
-    msg.append(logfilename);
-    msgBox.setText(msg.data());
-    qDebug("logfilename.");
+    msgBox.setText("no valid response from Box !");
     msgBox.exec();
+    return;
     }
-    else
+else
     {
-        wantlog = true;
+    Boxip = addr;
+    settings->setValue("Boxip", addr);
+    settings->setValue("Boxname",Boxname);
+    settings->setValue("maxup",ui->Maxupedit->text().toInt());
+    settings->setValue("maxdown",ui->maxdownedit->text().toInt());
+    if(ui->logcheck->checkState() == Qt::Checked)
+        {
+        logfilename = ui->logfilename->text().toStdString();
+        if(logfile != NULL)
+            {
+            fclose(logfile);
+            }
+    if((logfile = fopen(logfilename.data(),"a+")) == NULL)
+        {
+        QMessageBox msgBox;
+        string msg = "cannot open ";
+        msg.append(logfilename);
+        msgBox.setText(msg.data());
+        qDebug("logfilename.");
+        msgBox.exec();
+        }
+    else
+        {
+        wantlog = false;
         settings->setValue("wantlog",wantlog);
         settings->setValue("logfilename",logfilename.data());
-    }
-
+        }
 }
-else
-{
-    wantlog = false;
-    settings->setValue("wantlog",wantlog);
-    settings->remove("logfilename");
 
 }
 

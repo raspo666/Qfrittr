@@ -12,6 +12,7 @@ TEMPLATE = app
 INCLUDEPATH += ../../
 SOURCES += \
         config.cpp \
+        ipaddress.cpp \
         main.cpp \
         mainwindow.cpp \
         qcustomplot.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
         config.h \
+        ipaddress.h \
         mainwindow.h \
         project.h \
         qcustomplot.h \

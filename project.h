@@ -1,6 +1,7 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 #include "config.h"
+#include "ipaddress.h"
 #include "ui_config.h"
 #include <QMainWindow>
 #include <QMessageBox>

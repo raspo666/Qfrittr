@@ -52,11 +52,10 @@ extern int maxup, maxdown,curup,curdown;
 
 
       socke->connectToHost(Boxip,49000);
-      if(!socke->waitForConnected(3000))
+      if(!socke->waitForConnected(250))
       {
               return 1;
       }
-
       socke->write("POST /igdupnp/control/WANCommonIFC1 HTTP/1.1\n");
       socke->write(myhead.host.data());
       //qDebug() << myhead.host.data();
@@ -109,7 +108,7 @@ extern int maxup, maxdown,curup,curdown;
  }
 
 
-int getboxinfo()
+int getboxinfo(QString ip)
 {
     QTcpSocket *socke;
     header myhead ;
@@ -123,12 +122,12 @@ int getboxinfo()
 
 
 
-    myhead.host.append(Boxip.toStdString());
+    myhead.host.append(ip.toStdString());
     myhead.host.append(":4900\n");
 
 
-    socke->connectToHost(Boxip,49000);
-    if(!socke->waitForConnected(3000))
+    socke->connectToHost(ip,49000);
+    if(!socke->waitForConnected(250))
     {
             return 1;
     }
@@ -164,12 +163,11 @@ int getboxinfo()
     socke->close();
 
     /// get up/down
-    socke->connectToHost(Boxip,49000);
-    if(!socke->waitForConnected(3000))
+    socke->connectToHost(ip,49000);
+    if(!socke->waitForConnected(250))
     {
             return 1;
     }
-
 
     socke->write("POST /igdupnp/control/WANCommonIFC1 HTTP/1.1\n");
     socke->write(myhead.host.data());
