@@ -4,6 +4,7 @@
 #include "ipaddress.h"
 #include "ui_config.h"
 #include <QMainWindow>
+#include <QDateTime>
 #include <QMessageBox>
 #include <QHostAddress>
 #include <QDialog>

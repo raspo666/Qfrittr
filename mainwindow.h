@@ -48,6 +48,7 @@ public:
 private slots:
   void timerSlot();
   void doconfig();
+  void doquit();
 private:
   void logline(int up, int down);
 protected:

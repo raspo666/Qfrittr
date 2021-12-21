@@ -43,10 +43,14 @@ getip->exec();
 /*QMessageBox msgBox;
 msgBox.setText("config done");
 msgBox.exec();*/
-
-
-
 }
+void
+MainWindow::doquit()
+{
+}
+
+
+
 
 QSettings *settings;
 
@@ -113,6 +117,7 @@ qDebug() << settings->fileName();
   mPlot = new QCustomPlot(this);
   setCentralWidget(mPlot);
   connect(ui->actionconfig,SIGNAL(triggered()),this,SLOT(doconfig()));
+  connect(ui->actionconfig,SIGNAL(triggered()),this,SLOT(doquit()));
   // configure plot to have two right axes:
   mPlot->yAxis->setTickLabels(false);
   //connect(mPlot->yAxis2, SIGNAL(rangeChanged(QCPRange)), mPlot->yAxis, SLOT(setRange( 0.0,200.0)));//QCPRange))); // left axis only mirrors inner right axis
@@ -255,6 +260,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void
 MainWindow::logline(int up, int down)
 {
-    fprintf(logfile,"%d,%d\n",up,down);
+    string date;
+    QDateTime dtim ;
+    uint tim;
+    tim = time(0);
+    date =  QDateTime::fromTime_t(tim).toString().toStdString();
+    fprintf(logfile,"%s,%d,%d\n",date.data(),up,down);
     fflush(logfile);
 }

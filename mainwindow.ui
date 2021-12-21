@@ -35,6 +35,7 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionconfig"/>
+    <addaction name="actionquit"/>
    </widget>
    <addaction name="menu_Qfrittr"/>
   </widget>
@@ -50,6 +51,11 @@
   <action name="actionconfig">
    <property name="text">
     <string>config</string>
+   </property>
+  </action>
+  <action name="actionquit">
+   <property name="text">
+    <string>quit</string>
    </property>
   </action>
  </widget>
