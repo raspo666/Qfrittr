@@ -1,4 +1,10 @@
-﻿#pragma execution_character_set("utf-8")
+﻿///found on github MULan (?) License
+
+
+
+
+
+#pragma execution_character_set("utf-8")
 
 #include "ipaddress.h"
 #include "qlabel.h"
