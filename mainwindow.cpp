@@ -47,8 +47,10 @@ msgBox.exec();*/
 void
 MainWindow::doquit()
 {
-}
 
+    //qDebug() <<   "quit";
+    this->close();
+}
 
 
 
@@ -117,7 +119,7 @@ qDebug() << settings->fileName();
   mPlot = new QCustomPlot(this);
   setCentralWidget(mPlot);
   connect(ui->actionconfig,SIGNAL(triggered()),this,SLOT(doconfig()));
-  connect(ui->actionconfig,SIGNAL(triggered()),this,SLOT(doquit()));
+  connect(ui->actionquit,SIGNAL(triggered()),this,SLOT(doquit()));
   // configure plot to have two right axes:
   mPlot->yAxis->setTickLabels(false);
   //connect(mPlot->yAxis2, SIGNAL(rangeChanged(QCPRange)), mPlot->yAxis, SLOT(setRange( 0.0,200.0)));//QCPRange))); // left axis only mirrors inner right axis
@@ -249,8 +251,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings->setValue("maxdown",maxdown);
     settings->setValue("logfilename",logfilename.data());
     settings->setValue("wantlog",wantlog);
-    //settings->setValue("exit","yes");
+    //qDebug() << "saved";
     settings->sync();
+    event->accept();
 
 }
 
