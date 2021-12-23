@@ -15,4 +15,6 @@ $>qmake
 $>make
 ```
 
+feedback welcome info@spitzner.org
+
    -rasp
